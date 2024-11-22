@@ -3,6 +3,16 @@ entries:
   prometheus:
   - apiVersion: v2
     appVersion: v3.0.0
+    created: "2024-11-22T11:23:12.660371796Z"
+    description: A Helm chart for Prometheus
+    digest: 8bb8244440cc96d6d91eb8b2031c15a65b76889a107603817911bba409887a2a
+    name: prometheus
+    type: application
+    urls:
+    - https://github.com/teknoir/prometheus-helm/releases/download/prometheus-0.0.2/prometheus-0.0.2.tgz
+    version: 0.0.2
+  - apiVersion: v2
+    appVersion: v3.0.0
     created: "2024-11-22T09:36:07.406718778Z"
     description: A Helm chart for Prometheus
     digest: 470ed31cffdaf216142eb14e1c7d499a1ba462932175a7dd8439e75ffccdf7be
@@ -11,4 +21,4 @@ entries:
     urls:
     - https://github.com/teknoir/prometheus-helm/releases/download/prometheus-0.0.1/prometheus-0.0.1.tgz
     version: 0.0.1
-generated: "2024-11-22T09:36:07.406748544Z"
+generated: "2024-11-22T11:23:12.660654866Z"
