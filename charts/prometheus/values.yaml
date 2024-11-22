@@ -9,3 +9,6 @@ resources:
   requests:
     cpu: 100m
     memory: 128Mi
+nodePort:
+  enabled: false
+  nodePort: 31800
