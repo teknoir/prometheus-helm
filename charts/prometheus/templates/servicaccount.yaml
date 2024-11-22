@@ -1,0 +1,12 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: prometheus
+  annotations:
+    {{- toYaml $.Values.annotations | nindent 4 }}
+imagePullSecrets:
+  - name: artifact-registry-secret

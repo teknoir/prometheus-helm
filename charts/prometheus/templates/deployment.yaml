@@ -1,0 +1,90 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: prometheus
+  annotations:
+    {{- toYaml $.Values.annotations | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      app: prometheus
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: prometheus
+      annotations:
+        {{- toYaml $.Values.annotations | nindent 8 }}
+    spec:
+      serviceAccountName: prometheus
+      initContainers:
+        - name: change-ownership-container
+          image: busybox
+          command: [ "/bin/chown","-R","65534:65534", "/data" ]
+          securityContext:
+            runAsUser: 0
+            privileged: true
+          volumeMounts:
+            - name: storage-volume
+              mountPath: /data
+      containers:
+        - name: prometheus
+          image: quay.io/prometheus/prometheus:v3.0.0
+          imagePullPolicy: Always
+          args:
+            - --storage.tsdb.retention.time=1d
+            - --storage.tsdb.retention.size=1GB
+            - --config.file=/etc/config/prometheus.yml
+            - --storage.tsdb.path=/data
+            - --web.console.libraries=/etc/prometheus/console_libraries
+            - --web.console.templates=/etc/prometheus/consoles
+            - --web.enable-lifecycle
+            - --log.level=error
+          ports:
+            - name: http
+              containerPort: 9090
+              protocol: TCP
+          resources:
+            {{- toYaml $.Values.resources | nindent 12 }}
+          readinessProbe:
+            httpGet:
+              path: /-/ready
+              port: 9090
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            timeoutSeconds: 4
+            failureThreshold: 3
+            successThreshold: 1
+          livenessProbe:
+            httpGet:
+              path: /-/healthy
+              port: 9090
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            timeoutSeconds: 10
+            failureThreshold: 3
+            successThreshold: 1
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/config
+            - name: storage-volume
+              mountPath: /data
+      securityContext:
+        fsGroup: 65534
+        runAsGroup: 65534
+        runAsUser: 65534
+      terminationGracePeriodSeconds: 35
+      volumes:
+        - name: config-volume
+          configMap:
+            name: prometheus
+        - name: storage-volume
+          hostPath:
+            path: /opt/teknoir/prometheus/data
+            type: DirectoryOrCreate
